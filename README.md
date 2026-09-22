@@ -14,7 +14,7 @@
   </a>
 </p>
 
-## Mining block C++ (Nâng cấp RSA + P2P)
+## Blockchain C++ (Nâng cấp RSA + P2P)
 
 Dự án này là một ứng dụng giả lập (mô phỏng) mạng lưới Blockchain phân tán viết bằng ngôn ngữ C++. Phiên bản nâng cấp này tích hợp cơ chế bảo mật mã hóa bất đối xứng bằng thuật toán RSA (thông qua thư viện Crypto++), cơ chế đồng thuận Proof of Work dựa trên hàm băm mật mã học SHA-256, mạng ngang hàng (P2P) (thông qua thư viện Winsocket) cho phép nhiều node cùng tham gia đào và đồng bộ chuỗi theo thời gian thực, hỗ trợ hợp đồng thông minh (smart contract) đơn giản (timelock và escrow) để mô phỏng giao dịch có điều kiện, và ghi Log hệ thống (thông qua thư viện MiniLog).
 

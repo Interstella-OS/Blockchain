@@ -1,7 +1,0 @@
-#include "lib//header.h"
-#include "lib//user_blockchain.h"
-#include "lib//transaction_manager.h"
-#include "lib//blockchain.h"
-#include "lib//p2p.h"
-#include "lib//color.h"
-#include "lib//smart_contract.h" 

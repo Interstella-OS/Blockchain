@@ -14,7 +14,7 @@
   </a>
 </p>
 
-## Blockchain C++ (Nâng cấp RSA + P2P)
+## Mining block C++ (Nâng cấp RSA + P2P)
 
 Dự án này là một ứng dụng giả lập (mô phỏng) mạng lưới Blockchain phân tán viết bằng ngôn ngữ C++. Phiên bản nâng cấp này tích hợp cơ chế bảo mật mã hóa bất đối xứng bằng thuật toán RSA (thông qua thư viện Crypto++), cơ chế đồng thuận Proof of Work dựa trên hàm băm mật mã học SHA-256, mạng ngang hàng (P2P) (thông qua thư viện Winsocket) cho phép nhiều node cùng tham gia đào và đồng bộ chuỗi theo thời gian thực, hỗ trợ hợp đồng thông minh (smart contract) đơn giản (timelock và escrow) để mô phỏng giao dịch có điều kiện, và ghi Log hệ thống (thông qua thư viện MiniLog).
 
@@ -123,6 +123,16 @@ Sau khi khởi tạo ví và kết nối mạng P2P (nếu có), chương trình
 * **Lưu trữ lịch sử khối hợp lệ:** Mỗi block được xác thực thành công sẽ được ghi lại đầy đủ (id, hash, nonce, thời gian đào) vào file Json riêng, phục vụ tra cứu.
 * **Smart Contract mini (Timelock & Escrow):** Giao dịch có thể gắn thêm điều kiện trước khi được đào, khóa theo thời gian (Timelock) hoặc chờ người ký quỹ duyệt (Escrow). Hệ thống tự lọc mempool khi đào, chỉ đưa vào block những giao dịch đã đủ điều kiện.
 * **Ghi log bằng MiniLog:** Toàn bộ quá trình từ lúc bắt đầu đến kết thúc chương trình (đào block, nhận/gửi P2P, lỗi xác thực...) đều được ghi lại vào file log riêng thông qua thư viện `MiniLog` tự viết, phân loại theo từng cấp độ (info, success, warning, error), tiện theo dõi để phân tích mà không cần in ra terminal.
+* **Cây Merkle (Merkle Tree):** Toàn bộ giao dịch trong 1 block được nén thành 1 mã băm gốc duy nhất (merkle root) bằng double SHA-256. Root nằm ngay trong header block, tham gia vào hash block và được mọi node tái tính khi xác thực, giúp phát hiện giao dịch bị sửa và hỗ trợ Merkle Proof (SPV).
+
+## Cây Merkle (Merkle Tree)
+
+Merkle Tree là cấu trúc cây băm dùng để **đóng dấu toàn bộ giao dịch của 1 block bằng một mã băm gốc duy nhất** (merkle root), đúng theo cơ chế trong các blockchain thật (Bitcoin, Ethereum):
+
+* **Tạo root:** Mỗi giao dịch được băm **2 lần bằng SHA-256** (lá), sau đó ghép từng cặp lại và băm tiếp (nút) cho tới khi còn 1 nút duy nhất (root). Nếu số giao dịch là số lẻ, nút cuối được nhân bản để luôn ghép được đủ cặp.
+* **Root nằm trong header block:** `merkle_root` được lưu cùng block và tham gia vào `hash_sha256()` của block, nên chỉ cần sửa 1 giao dịch là hash block cũng đổi theo và bị phát hiện ngay.
+* **Xác thực khi nhận block:** Mọi node tự tái tính merkle root từ `data["transactions"]` rồi so sánh với root đã công bố. Trùng khớp mới chấp nhận giao dịch; sai là từ chối block, kể cả block nhận từ Peer hay block nhận trong lúc đồng bộ chuỗi.
+* **Merkle Proof (SPV):** Có thể trích xuất đường dẫn chứng minh (`get_merkle_proof`) rằng 1 giao dịch cụ thể nằm trong block và xác minh lại (`verify_merkle_proof`) chỉ với O(log n) bước mà không cần tải toàn bộ block — nguyên tắc mà ví nhẹ (light node) dùng để kiểm tra giao dịch.
 
 ---
 
@@ -191,6 +201,14 @@ Sau khi khởi tạo ví và kết nối mạng P2P (nếu có), chương trình
   "mining_time": 1,
   "isvalid": true
 },
+```
+
+---
+
+> **Kể từ bản nâng cấp Merkle Tree**, mỗi block còn lưu thêm trường `merkle_root` (băm gốc của toàn bộ giao dịch trong `data.transactions`) nằm ngay trong header block, cùng cấp với `prev_hash`, `curr_hash`, `nonce` ... và được kiểm tra lại khi xác thực:
+
+```json
+"merkle_root": "9eb6d93ded5c1535651f16ebf3fa36d0ecca04a2abf8de617f0d5e018e4007c4"
 ```
 
 ---
@@ -271,7 +289,6 @@ Sau khi nhập như trên sẽ tạo ra 1 mạng lưới P2P gồm 3 Node nối 
 
 ## Tác giả
 **Nguyễn Trường Chinh (NTC++)**<br>
-**Ủng hộ:** [Nếu bạn thấy hữu ích hãy ủng hộ mình](https://github.com/sponsors/trgchinhh)<br>
 **GitHub:** [https://github.com/trgchinhh](https://github.com/trgchinhh)
 
 ---

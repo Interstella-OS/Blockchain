@@ -241,7 +241,7 @@ pacman -S mingw-w64-x86_64-cryptopp
 
 ### Biên dịch và khởi chạy
 ```bash
-git clone https://github.com/trgchinhh/Blockchain-Miner.git
+git clone https://github.com/Interstella-OS/Blockchain-Miner.git
 cd Blockchain-Miner
 g++ ./build.cpp -o ./build.exe 
 ./build.exe
